@@ -1,0 +1,106 @@
+#define	H	0x76
+#define	E	0x79
+#define	L	0x38
+#define	O	0x3F
+#define	U	0x3E
+#define	R	0x50
+#define	D	0x5E
+#include <unistd.h>
+#include <stdio.h>
+
+volatile int * led = (int *) 0xFF200040;
+// red LED address
+volatile int * switchptr = (int *) 0xFF200030;
+// SW slider switch address
+volatile int * hex3_hex0 = (int *) 0xFF200020;
+// hex3 - hex 0 addr
+volatile int * hex5_hex4 = (int *) 0xFF200010;
+// hex5 - hex 4 addr
+
+
+// Simple test program 
+
+void delay(int n)
+{
+	long i, j, k;
+	int tmp = 1;
+	for (i = 0; i<10000*n; i++) {
+		for (j = 0; j<10000*n; j++) {
+			for (k = 0; k<10000*n; k++) {
+				tmp *= 12345;
+			}
+		}
+	}
+}
+
+void shift(void)
+{
+	long long buf;
+
+	//// Read the existing letters
+	//buf = *hex5_hex4;	// read the first 2 digits
+	//buf <<= 32;		// shift left 4 digits
+	//buf += *hex3_hex0;	// read the last 4 digits
+
+	//// Shift left 1 digit
+	//buf <<= 8;
+
+	//// Display shifted letters
+	//*hex3_hex0 = buf & 0x0000FFFF;
+	//*hex5_hex4 = (buf >> 32) & 0x000000FF;
+
+	buf = *hex3_hex0 & 0xF000;
+	buf >>= 12;
+	*hex5_hex4 <<= 8;
+	*hex5_hex4 += buf;
+	*hex3_hex0 <<= 8;
+}
+
+int main(void)
+{
+	//printf("%d\n", sizeof(int));
+	//printf("%d\n", sizeof(long));
+	//printf("%d\n", sizeof(long long));
+
+
+
+
+	int switch_value;
+	int buf, buf2 = 0;
+
+	buf = H; buf <<= 8;
+	buf += E; buf <<= 8;
+	buf += L; buf <<= 8;
+	buf += L;
+	*hex3_hex0 = buf;
+	
+	shift();
+
+	while(1);
+
+
+	//while (1)
+	//{
+	//	switch_value = *(switchptr);
+	//	*(led) = switch_value;
+
+	//	buf = H; buf <<= 8;
+	//	//buf += E; buf <<= 8;
+	//	//buf += L; buf <<= 8;
+	//	//buf += L;
+	//	//*(hex3_hex0) = buf;
+	//	*(hex3_hex0) = H;
+	//	delay(1);
+	//	*(hex3_hex0) = E;
+	//	delay(1);
+	//	*(hex3_hex0) = L;
+	//	delay(1);
+	//	*(hex3_hex0) = L;
+	//	delay(1);
+	//	
+	//	//*(hex5_hex4) <<= 8;
+	//	//buf2 = 0xF000 && buf;
+	//	//buf2 >>= 12;
+	//	//*(hex5_hex4) += buf2;
+	//}
+}
